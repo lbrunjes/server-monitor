@@ -1,0 +1,15 @@
+{
+  "name": "server-monitor",
+  "version": "0.0.1",
+  "description": "a simple http and ping server monitor",
+  "main": "start.js",
+  "dependencies": {
+    "ping": "^0.2.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test.js"
+  },
+  "author": "Lee Brunjes",
+  "license": "MIT"
+}

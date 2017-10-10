@@ -1,0 +1,112 @@
+<!doctype html>
+
+<html>
+<head>
+	<title> This is a simple ping and http monitor server monitor.</title>
+	<style>
+	html{
+		background:#333;
+		color:#fff;
+		font: 16px sans-serif;
+	}
+	img{
+		display:inline-block;
+		border-radius:1em;
+		height:2em;
+
+	}
+	button{
+		background:#aaa;
+		color:#333;
+		border:1px solid #fff;
+		border-radius:1ex;
+		padding:1ex;
+	}
+	</style>
+	<script>
+	var ajax = function(url) {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", url, false);
+		if (xhr.overrideMimeType) {
+			xhr.overrideMimeType("text/plain");
+		}
+		xhr.setRequestHeader("If-Modified-Since", "Fri, 01 Jan 1960 00:00:00 GMT");
+		xhr.send(null);
+		// failed request?
+		if (xhr.status !== 200 && xhr.status !== 0) { throw ("XMLHttpRequest failed, status code " + xhr.status); }
+		return xhr.responseText;
+	};
+	var jsonToHtml=function(json, doc){
+		if(!doc){doc = document;}
+		var el = null;
+		if(json === null){
+			el = doc.createElement("span");
+			el.innerText = "null";
+		}
+		switch(typeof(json)){
+			case "undefined":
+			el = doc.createElement("span");
+			el.innerText = "undefined";
+			break;
+			case "string":
+			case "boolean":
+			case "number":
+			el = doc.createElement("span");
+			el.innerText = json;
+			break;
+			case "object":
+			el = doc.createElement("table");
+
+			for(key in json){
+				var tr= doc.createElement("tr");
+				var td_key = doc.createElement("td");
+				var td_val = doc.createElement("td");
+				td_key.appendChild(jsonToHtml(key));
+				tr.appendChild(td_key);
+				td_val.appendChild(jsonToHtml(json[key]));
+				tr.appendChild(td_val)
+				el.appendChild(tr);
+			}
+			break;
+		}
+		return el;
+
+	}
+	var getdata= function(){
+
+		var els = jsonToHtml(JSON.parse(ajax("/api/status")));
+		console.log(els);
+		var div= document.getElementById("results");
+		if(div){
+
+			div.appendChild(els);;
+		}
+		else{
+			console.log("no results")
+		}
+		div = document.getElementById("lasupdate");
+		if(div){
+
+			div.innerText=new Date();;
+		}
+		
+	}
+	setInterval(getdata(), (1000));
+	</script>
+	</head>
+	<body>
+		<header>
+			<h1><img src="favicon.ico"/> Server Monitor</h1>
+		</header>
+		<p>Last Update: <span id="lasupdate"></span></p>
+		<nav>
+			
+			<button onclick="getdata()">Get Data</button>
+		</nav>
+		<div id="results">
+		</div>
+		<footer>
+			<!--Lee Brunjes 2017 lee.brunjes@gmail.com-->
+		</footer>
+	</body>
+	</html>

@@ -1,0 +1,15 @@
+{
+	"servers":[
+		{"hostname":"127.0.0.1","type":"ping", "frequency":1},
+		{"hostname":"127.0.0.1","type":"http", "frequency":1},
+		{"hostname":"127.0.0.1","type":"http", "frequency":1, "path":"/to/url.html"}
+	],
+	"settings":{
+		"history_size":60,
+		"allowed_types":["http","https", "ping"],
+		"use_https":false,
+		"https_priv_key":"./privkey.cert",
+		"https_cert":"./pubkey.cert",
+		"port":8080
+	}
+}
