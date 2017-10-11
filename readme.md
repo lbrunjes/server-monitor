@@ -5,19 +5,18 @@ This is a simple ping and http monitoring tool to ensure that servers I deal wit
 === Usage:
 Setup a config file using the template file provided.
 Start the script.
-View the web page at :8080
+`````nodejs start.js config.json`````
+View the web page at http://127.0.0.1:8080
 
 === TODO
-Support command line options
-* -v
+Support command line options correctly
 * filename
 
-Display nicely
-* support clicking into the history or hovering it
+Support http basic auth for users
 
-http basic
-
-http requests
+Clarify REST API
+* status
+* config
 
 uses arrow-dunk.svg from gameicons.net
 

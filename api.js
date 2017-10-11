@@ -12,12 +12,16 @@ var rest_api = function(){
 
 	this.rest = function(request, response){
 		try{
-			console.log(request.url);
+			verbose(request.url);
+
+			//TODO http basic auth
+
 			response.writeHead(200);
 			
 			if(request.url.indexOf("/api") === 0){
 				//do api handling
 				response.end(JSON.stringify(results));
+				
 			}
 			else{
 				var url =request.url;
@@ -34,7 +38,7 @@ var rest_api = function(){
 				var result= /(?:\/[^\/]+?)$/.exec(url);
 				
 				
-				console.log(url,result);
+				verbose(url,result);
 
 				response.end(fs.readFileSync("./web"+result));
 			}

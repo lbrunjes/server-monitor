@@ -25,6 +25,10 @@
 		border-bottom:1px solid #555;
 		padding: 1em ;
 	}
+	td{
+		text-align:left;
+		vertical-align: top;
+	}
 	.okay{
 		color:#0f0;
 	}
@@ -34,6 +38,21 @@
 
 	#results{
 		margin:1em ;
+	}
+	a .hovered{
+		display:none;
+		position: absolute;
+		background:#222;
+		
+
+	}
+	a:hover .hovered{
+		
+		display:block;
+	}
+	td a:hover{
+		border-bottom:3px solid #111;
+		border-top:3px solid #111;
 	}
 	
 </style>
@@ -91,55 +110,74 @@
 	}
 	var jsonToGoodHtml = function(json, doc){
 		if(!doc){doc = document;}
+
+		var headercells= ["Host", "Type", "Ok", "Checked", "Ping","Detail", "History"];
+
 		console.log(json);
 		var table = doc.createElement("table");
+
+		var header = doc.createElement("tr");
+		for (var i=0; i <headercells.length; i++){
+			var cell = doc.createElement("th");
+			cell.innerText =  headercells[i];
+			header.appendChild(cell);
+		}
+
+		table.appendChild(header);
+
+
 		for(var host in json){
-
-			var row = doc.createElement("tr");
-			var hostname = doc.createElement("td");
-			hostname.innerText = host
-			row.appendChild(hostname);
-
-			var statuses = doc.createElement("td");
-			var statustable = doc.createElement("table");
 			for(var i = 0; i < json[host].length;i++){
-				var statusrow = doc.createElement("tr");
+				var row = doc.createElement("tr");
+				if(i ==0){
+					var hostname = doc.createElement("td");
+					hostname.innerText = host
+					hostname.setAttribute("rowspan",json[host].length>0?json[host].length:1);
+					row.appendChild(hostname);
+				}
+
+
+
+				
 
 				var rowtype = doc.createElement("td");
 				rowtype.innerText =  json[host][i].details.type;
-				statusrow.appendChild(rowtype);
+				row.appendChild(rowtype);
 
 				var currentstatus = doc.createElement("td");
 				currentstatus.innerText = json[host][i].history[0]?( json[host][i].history[0].ok? "✔" : "x"):"-";
 				currentstatus.setAttribute("class",json[host][i].history[0]?( json[host][i].history[0].ok?"okay":"fail" ):"");
-				statusrow.appendChild(currentstatus);
+				row.appendChild(currentstatus);
 
 				var last = doc.createElement("td");
 				last.innerText =json[host][i].history[0]? new Date(json[host][i].history[0].time).toLocaleTimeString()  : "";
-				statusrow.appendChild(last);
+				row.appendChild(last);
 
 				var ping = doc.createElement("td");
-				ping.innerText =json[host][i].history[0]? (json[host][i].history[0].ok?json[host][i].history[0].duration +"ms":json[host][i].history[0].detail)  : "";
-				statusrow.appendChild(ping);
+				ping.innerText =json[host][i].history[0]? json[host][i].history[0].duration +"ms" : "";
+				row.appendChild(ping);
+				var details = doc.createElement("td");
+				details.innerText = json[host][i].history[0]? json[host][i].history[0].detail:"";
+				row.appendChild(details);
 
 				var hist = doc.createElement("td");
 				
-				for(var j = 1; j <json[host][i].history.length ;j++){
-					var hist_span = doc.createElement("a");
-					hist_span.innerText=  json[host][i].history[j].ok?"✔":"x";
-					hist_span.setAttribute("class",json[host][i].history[j].ok?"okay":"fail" );
-					hist.appendChild(hist_span);
+				for(var j = json[host][i].history.length-1; j >0 ;j--){
+					var hist_a = doc.createElement("a");
+					hist_a.innerText=  json[host][i].history[j].ok?"✔":"x";
+					hist_a.setAttribute("class",json[host][i].history[j].ok?"okay":"fail" );
+					var hist_span = doc.createElement("span");
+					hist_span.innerText = json[host][i].history[j].detail +" at "+new Date(json[host][i].history[j].time).toLocaleTimeString();
+					hist_span.setAttribute("class","hovered")
+					hist_a.appendChild(hist_span);
+					hist.appendChild(hist_a);
 				}
 				
-				statusrow.appendChild(hist);
+				row.appendChild(hist);
+				table.appendChild(row);
 
-				statustable.appendChild(statusrow)
 			}
-			statuses.appendChild(statustable);
-			
-			row.appendChild(statuses);
 
-			table.appendChild(row);
 		}
 		return table;
 	}
@@ -167,7 +205,7 @@
 		}
 		
 	}
-	setInterval(getdata(), 5000);
+	setInterval(getdata, 5000);
 </script>
 </head>
 <body>
@@ -179,8 +217,8 @@
 					<path d="M237.13 18.283c-51.748 0-99.183 27.58-136.067 73.395 11.946-6.97 24.526-11.903 37.51-14.76 8.952-1.97 18.062-2.96 27.25-3 27.562-.123 55.824 8.283 82.636 24.318 70.828 42.362 132.585 137.45 153.704 275.178l-49.44 12.637 74.33 109.74 74.327-147.733-51.84 13.25c.564-8.534.9-17.16.9-25.905 0-175.088-95.847-317.12-213.307-317.12h-.002zm-71.165 74.305c-7.924.04-15.734.9-23.375 2.582-30.47 6.705-58.785 26.48-81.356 61.89C37.996 207.88 24.4 269.28 24.4 335.4c0 15.983 1.35 31.378 2.883 46.73 14.387-135.103 92.702-238.62 187.363-238.62 34.713 0 67.177 13.976 95.083 38.334-21.608-29.968-45.915-52.65-70.863-67.57-24.337-14.556-49.13-21.81-72.902-21.688z" fill="#9cf"/>
 				</svg>
 			</a>
-		Last Update: <span id="lasupdate">Pending</span>
-	</nav>
+			Last Update: <span id="lasupdate">Pending</span>
+		</nav>
 	</header>
 
 

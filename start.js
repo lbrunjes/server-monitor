@@ -21,12 +21,14 @@ var config= {
 		{"hostname":"127.0.0.1","type":"http", "frequency":5, "path":"/to/url.html"}
 	],
 	"settings":{
-		"history_size":64,
+		"history_size":100,
 		"allowed_types":["http","https", "ping"],
 		"use_https":false,
 		"https_priv_key":"./privkey.cert",
 		"https_cert":"./pubkey.cert",
-		"port":8080
+		"port":8080,
+		"verbose":false,
+		"refresh_time":5000
 	}
 };
 global.results={}
@@ -42,7 +44,13 @@ if (process.argv.length>2){
 
 
 //read config
-var config = JSON.parse(fs.readFileSync(configfile));
+var config_tmp = JSON.parse(fs.readFileSync(configfile));
+var tmp_keys= Object.keys(config_tmp);
+for(var key in config){
+	if(tmp_keys.indexOf(key>=0)){
+		config[key] = config_tmp[key];
+	}
+}
 
 
 
@@ -64,20 +72,22 @@ for(var i in config.servers){
 		history:[]})
 	}
 }
-//Handle flags now that load is done
-if (process.argv.length>3 && (process.argv[3] == "-v" ||process.argv[3]=="--verbose")){
-	config.settings.verbose = true;
-}
+
 console.log("Read config complete");
 
 
+global.verbose=function(){
+	if (config.settings.verbose){
+		console.log(arguments)
+	}
+}
 
 
 
 //define data to be called from handlers
 global.addResult = function(server, was_success,details){
 
-	//console.log("adding result", server, was_success, details);
+	verbose("adding result", server, was_success, details);
 
 	for (var i =0 ;i < results[server.hostname].length ;i++){
 		if(results[server.hostname][i].details.type == server.type && 
@@ -101,7 +111,7 @@ global.addResult = function(server, was_success,details){
 
 //pick the correct handler and normalize data before sending.
 var testServer = function(server_config,i){
-	//console.log("testing ", server_config);
+	verbose("testing ", server_config);
 	//ensure we hava supported type
 	if(!handlers[server_config.type]){
 		console.log("unsupported type", server_config.type);
@@ -124,7 +134,7 @@ var testServer = function(server_config,i){
 	}
 
 	//at this point we have  handler, call it and mark it called.
-	//console.log("calling", server_config.hostname);
+	verbose("calling", server_config.hostname);
 	try{
 		results[server_config.hostname][i].last = new Date();
 		handlers[server_config.type].makeRequest(server_config,url);
@@ -135,7 +145,7 @@ var testServer = function(server_config,i){
 
 }
 var findNeededTests = function(){
-	//console.log("checking for tests to run");
+	verbose("checking for tests to run");
 	for(var host in results){
 		for( var i = 0 ;i < results[host].length;i++){
 			//has it been more than frequency minutes since out last check?
@@ -150,10 +160,10 @@ var findNeededTests = function(){
 }
 findNeededTests();
 //call it every so often
-setInterval(findNeededTests, 5000);
+setInterval(findNeededTests, config.settings.refresh_time);
 
 
-//setup server using thttp or https
+//setup server using http or https
 if(!config.settings.use_https){
 	server = http.createServer(api.rest);
 }

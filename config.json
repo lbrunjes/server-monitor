@@ -1,7 +1,11 @@
 {
 	"servers":[
-		{"hostname":"127.0.0.1","type":"ping", "frequency":1},
-		{"hostname":"192.168.1.164","type":"http", "frequency":1}
+		{"hostname":"127.0.0.1","type":"ping", "frequency":5},
+		{"hostname":"127.0.0.1","type":"http", "frequency":5},
+		{"hostname":"google.com","type":"https", "frequency":15},
+		{"hostname":"127.0.0.1","type":"https", "frequency":1},
+		{"hostname":"brunjes.org","type":"http", "frequency":0.5},
+		{"hostname":"brunjes.org","type":"https", "frequency":1}
 	],
 	"settings":{
 		"history_size":60,
