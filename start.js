@@ -37,13 +37,13 @@ console.log("Startup");
 
 //load other options from CLI
 if (process.argv.length>2){
-//TODO
-
+	configfile = process.argv[2];
 }
 
 
 //read config
 var config = JSON.parse(fs.readFileSync(configfile));
+
 
 
 for(var i in config.servers){
@@ -53,16 +53,20 @@ for(var i in config.servers){
 	results[config.servers[i].hostname] = [{
 		hostname:config.servers[i].hostname, 
 		details:config.servers[i], 
-		last:new Date(),
+		last:new Date(0),
 		history:[]}];
 	}
 	else{
 		results[config.servers[i].hostname].push({
 		hostname:config.servers[i].hostname, 
 		details:config.servers[i], 
-		last:new Date(),
+		last:new Date(0),
 		history:[]})
 	}
+}
+//Handle flags now that load is done
+if (process.argv.length>3 && (process.argv[3] == "-v" ||process.argv[3]=="--verbose")){
+	config.settings.verbose = true;
 }
 console.log("Read config complete");
 
@@ -83,7 +87,7 @@ global.addResult = function(server, was_success,details){
 				ok:was_success, 
 				time:new Date(), 
 				detail:details,
-				duration: new Date()- results[server.hostname][i].last/1000
+				duration: (new Date() - results[server.hostname][i].last)
 			});
 		}
 		//remove the 0th element if we are too long
@@ -96,8 +100,8 @@ global.addResult = function(server, was_success,details){
 };
 
 //pick the correct handler and normalize data before sending.
-var testServer = function(server_config){
-	console.log("testing ", server_config);
+var testServer = function(server_config,i){
+	//console.log("testing ", server_config);
 	//ensure we hava supported type
 	if(!handlers[server_config.type]){
 		console.log("unsupported type", server_config.type);
@@ -120,8 +124,8 @@ var testServer = function(server_config){
 	}
 
 	//at this point we have  handler, call it and mark it called.
-	console.log("calling", server_config.hostname);
-	results[server_config.hostname].last = new Date();
+	//console.log("calling", server_config.hostname);
+	results[server_config.hostname][i].last = new Date();
 	handlers[server_config.type].makeRequest(server_config,url);
 
 }
@@ -133,7 +137,7 @@ var findNeededTests = function(){
 			var msago = results[host][i].details.frequency * 60 *1000;
 			if(results[host][i].last.getTime()+msago < new Date().getTime()){
 
-				testServer(results[host][i].details)
+				testServer(results[host][i].details,i);
 			}
 		}
 	}

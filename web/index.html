@@ -1,29 +1,44 @@
 <!doctype html>
 
 <html>
-<head>
-	<title> This is a simple ping and http monitor server monitor.</title>
+<head> 
+	<title> Server Monitor - a simple ping and http monitor server monitor.</title>
+	<meta charset="UTF-8">
 	<style>
 	html{
 		background:#333;
 		color:#fff;
 		font: 16px sans-serif;
+		
 	}
 	img{
 		display:inline-block;
 		border-radius:1em;
 		height:2em;
+	}
+	svg{
+		display:inline-block;
+		height:1em;
+	}
+	header{
+		
+		border-bottom:1px solid #555;
+		padding: 1em ;
+	}
+	.okay{
+		color:#0f0;
+	}
+	.fail{
+		color:#f00;
+	}
 
+	#results{
+		margin:1em ;
 	}
-	button{
-		background:#aaa;
-		color:#333;
-		border:1px solid #fff;
-		border-radius:1ex;
-		padding:1ex;
-	}
-	</style>
-	<script>
+	
+</style>
+<script>
+
 	var ajax = function(url) {
 		var xhr = new XMLHttpRequest();
 		xhr.open("GET", url, false);
@@ -36,6 +51,8 @@
 		if (xhr.status !== 200 && xhr.status !== 0) { throw ("XMLHttpRequest failed, status code " + xhr.status); }
 		return xhr.responseText;
 	};
+
+	//formats teh data generically for json to htlm
 	var jsonToHtml=function(json, doc){
 		if(!doc){doc = document;}
 		var el = null;
@@ -72,14 +89,73 @@
 		return el;
 
 	}
-	var getdata= function(){
+	var jsonToGoodHtml = function(json, doc){
+		if(!doc){doc = document;}
+		console.log(json);
+		var table = doc.createElement("table");
+		for(var host in json){
 
-		var els = jsonToHtml(JSON.parse(ajax("/api/status")));
-		console.log(els);
+			var row = doc.createElement("tr");
+			var hostname = doc.createElement("td");
+			hostname.innerText = host
+			row.appendChild(hostname);
+
+			var statuses = doc.createElement("td");
+			var statustable = doc.createElement("table");
+			for(var i = 0; i < json[host].length;i++){
+				var statusrow = doc.createElement("tr");
+
+				var rowtype = doc.createElement("td");
+				rowtype.innerText =  json[host][i].details.type;
+				statusrow.appendChild(rowtype);
+
+				var currentstatus = doc.createElement("td");
+				currentstatus.innerText = json[host][i].history[0]?( json[host][i].history[0].ok? "✔" : "x"):"-";
+				currentstatus.setAttribute("class",json[host][i].history[0]?( json[host][i].history[0].ok?"okay":"fail" ):"");
+				statusrow.appendChild(currentstatus);
+
+				var last = doc.createElement("td");
+				last.innerText =json[host][i].history[0]? new Date(json[host][i].history[0].time).toLocaleTimeString()  : "";
+				statusrow.appendChild(last);
+
+				var ping = doc.createElement("td");
+				ping.innerText =json[host][i].history[0]? (json[host][i].history[0].ok?json[host][i].history[0].duration +"ms":json[host][i].history[0].detail)  : "";
+				statusrow.appendChild(ping);
+
+				var hist = doc.createElement("td");
+				
+				for(var j = 1; j <json[host][i].history.length ;j++){
+					var hist_span = doc.createElement("a");
+					hist_span.innerText=  json[host][i].history[j].ok?"✔":"x";
+					hist_span.setAttribute("class",json[host][i].history[j].ok?"okay":"fail" );
+					hist.appendChild(hist_span);
+				}
+				
+				statusrow.appendChild(hist);
+
+				statustable.appendChild(statusrow)
+			}
+			statuses.appendChild(statustable);
+			
+			row.appendChild(statuses);
+
+			table.appendChild(row);
+		}
+		return table;
+	}
+
+	//gets data from teh api
+	var getdata= function(){
+		console.clear();
+		console.log("getting data");
+		var els = jsonToGoodHtml(JSON.parse(ajax("/api/status")));
+
 		var div= document.getElementById("results");
 		if(div){
-
-			div.appendChild(els);;
+			while(div.children.length>0){
+				div.removeChild(div.children[0]);
+			}
+			div.appendChild(els);
 		}
 		else{
 			console.log("no results")
@@ -87,26 +163,32 @@
 		div = document.getElementById("lasupdate");
 		if(div){
 
-			div.innerText=new Date();;
+			div.innerText=new Date().toLocaleTimeString();;
 		}
 		
 	}
-	setInterval(getdata(), (1000));
-	</script>
-	</head>
-	<body>
-		<header>
-			<h1><img src="favicon.ico"/> Server Monitor</h1>
-		</header>
-		<p>Last Update: <span id="lasupdate"></span></p>
+	setInterval(getdata(), 5000);
+</script>
+</head>
+<body>
+	<header>
+		<h1><img src="favicon.ico"/> Server Monitor</h1>
 		<nav>
-			
-			<button onclick="getdata()">Get Data</button>
-		</nav>
-		<div id="results">
-		</div>
-		<footer>
-			<!--Lee Brunjes 2017 lee.brunjes@gmail.com-->
-		</footer>
-	</body>
-	</html>
+			<a onclick="getdata()">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+					<path d="M237.13 18.283c-51.748 0-99.183 27.58-136.067 73.395 11.946-6.97 24.526-11.903 37.51-14.76 8.952-1.97 18.062-2.96 27.25-3 27.562-.123 55.824 8.283 82.636 24.318 70.828 42.362 132.585 137.45 153.704 275.178l-49.44 12.637 74.33 109.74 74.327-147.733-51.84 13.25c.564-8.534.9-17.16.9-25.905 0-175.088-95.847-317.12-213.307-317.12h-.002zm-71.165 74.305c-7.924.04-15.734.9-23.375 2.582-30.47 6.705-58.785 26.48-81.356 61.89C37.996 207.88 24.4 269.28 24.4 335.4c0 15.983 1.35 31.378 2.883 46.73 14.387-135.103 92.702-238.62 187.363-238.62 34.713 0 67.177 13.976 95.083 38.334-21.608-29.968-45.915-52.65-70.863-67.57-24.337-14.556-49.13-21.81-72.902-21.688z" fill="#9cf"/>
+				</svg>
+			</a>
+		Last Update: <span id="lasupdate">Pending</span>
+	</nav>
+	</header>
+
+
+	<div id="results">
+	</div>
+	<footer>
+		<!--Lee Brunjes 2017 lee.brunjes@gmail.com-->
+		<script>getdata();</script>
+	</footer>
+</body>
+</html>

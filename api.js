@@ -15,7 +15,6 @@ var rest_api = function(){
 			console.log(request.url);
 			response.writeHead(200);
 			
-
 			if(request.url.indexOf("/api") === 0){
 				//do api handling
 				response.end(JSON.stringify(results));
@@ -24,7 +23,7 @@ var rest_api = function(){
 				var url =request.url;
 				//support default doc
 				if(!url || url ==="/"){
-					result = "/index.html";
+					url = "/index.html";
 				}
 				//all paths astart with/
 				if(url.indexOf("/") <0){
@@ -35,7 +34,7 @@ var rest_api = function(){
 				var result= /(?:\/[^\/]+?)$/.exec(url);
 				
 				
-				console.log(result);
+				console.log(url,result);
 
 				response.end(fs.readFileSync("./web"+result));
 			}

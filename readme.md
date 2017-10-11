@@ -8,8 +8,17 @@ Start the script.
 View the web page at :8080
 
 === TODO
-Support commandline options
+Support command line options
 * -v
 * filename
+
+Display nicely
+* support clicking into the history or hovering it
+
+http basic
+
+http requests
+
+uses arrow-dunk.svg from gameicons.net
 
 

@@ -1,7 +1,7 @@
 /*
-Handlers for 
-
-
+Handlers for server monitor.
+Lee Brunjes 2017 lee.brunjes@gmail.com
+This make sthe requests taht return to the system
 
 
 */
@@ -16,6 +16,15 @@ var handlers = function(){
 
 	this.http = {
 		makeRequest:function(server, url){
+			console.log(server, url);
+			var opts = {
+				port: 80,
+				hostname: server.hostname,
+				method: 'GET',
+				path: server.path? server.path:"/"
+			};
+
+			http.get(url)
 
 		},
 		evaluateResult:function(server, result){
