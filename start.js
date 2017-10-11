@@ -125,8 +125,13 @@ var testServer = function(server_config,i){
 
 	//at this point we have  handler, call it and mark it called.
 	//console.log("calling", server_config.hostname);
-	results[server_config.hostname][i].last = new Date();
-	handlers[server_config.type].makeRequest(server_config,url);
+	try{
+		results[server_config.hostname][i].last = new Date();
+		handlers[server_config.type].makeRequest(server_config,url);
+	}
+	catch(ex){
+		addResult(server_config, false, ex.message);
+	}
 
 }
 var findNeededTests = function(){

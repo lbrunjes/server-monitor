@@ -17,24 +17,27 @@ var handlers = function(){
 	this.http = {
 		makeRequest:function(server, url){
 			console.log(server, url);
-			var opts = {
-				port: 80,
-				hostname: server.hostname,
-				method: 'GET',
-				path: server.path? server.path:"/"
-			};
-
-			http.get(url)
+			
+			http.get(url,(response)=>{handlers.http.evaluateResult(server, response);});
 
 		},
-		evaluateResult:function(server, result){
+		evaluateResult:function(server, response){
 
+				//we dont care about data. just teh status code
+			
+			   response.on('error', (err) => {
+			   	addResult(server,false,err.message);
+			   });
+
+			   addResult (server, response.statusCode< 500?true:false, response.statusCode)
 		}
 	}
 
 	this.https={
 		makeRequest:function(server, url){
-
+			console.log(server, url);
+			
+			http.get(url,(response)=>{handlers.http.evaluateResult(server, response);});
 		},
 		evaluateResult:function(result){
 
@@ -44,7 +47,7 @@ var handlers = function(){
 
 	this.ping = {
 		makeRequest:function(server, url){
-			ping.sys.probe(url,function(alive){ 
+			ping.sys.probe(url,(alive)=>{ 
 				handlers.ping.evaluateResult(server,alive);
 			})
 		},
