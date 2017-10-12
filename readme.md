@@ -12,9 +12,6 @@ View the web page at http://127.0.0.1:8080
 
 Support http basic auth for users
 
-Clarify REST API
-* status
-* config
 
 uses arrow-dunk.svg from gameicons.net
 

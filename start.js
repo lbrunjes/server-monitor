@@ -1,9 +1,8 @@
 /*
 Start.js
-Starts up the monitor server
 Lee Brunjes 2017 lee.brunjes@gmail.com
 
-
+Starts up the monitor server
 
 */
 const ping = require('ping');
@@ -14,7 +13,9 @@ const handlers = require("./handlers.js")
 const api = require("./api.js")
 
 var configfile= "config.json";
-var config= {
+var packageinfofile = "package.json";
+
+global.config= {
 	"servers":[
 		{"hostname":"127.0.0.1","type":"ping", "frequency":5},
 		{"hostname":"127.0.0.1","type":"http", "frequency":5},
@@ -51,7 +52,9 @@ for(var key in config){
 		config[key] = config_tmp[key];
 	}
 }
-
+//read package info
+global.packageinfo = JSON.parse(fs.readFileSync(packageinfofile));
+console.log(packageinfo.name+" v"+packageinfo.version);
 
 
 for(var i in config.servers){

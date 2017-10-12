@@ -1,6 +1,6 @@
 {
   "name": "server-monitor",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "a simple http and ping server monitor",
   "main": "start.js",
   "dependencies": {

@@ -1,8 +1,8 @@
 /*
+REST API
+Lee Brunjes 2017 lee.brunjes@gmail.com
 
-
-
-
+This does the rest api for the service
 
 */
 const fs = require('fs');
@@ -16,11 +16,35 @@ var rest_api = function(){
 
 			//TODO http basic auth
 
-			response.writeHead(200);
 			
-			if(request.url.indexOf("/api") === 0){
+			
+			if(request.url.indexOf("/api/") === 0){
 				//do api handling
-				response.end(JSON.stringify(results));
+				console.log(request.url.substring(5));
+				switch(request.url.substring(5)){
+
+					case "status":
+						response.writeHead(200,{"Content-Type": "application/json; charset=utf-8"});
+						response.end(JSON.stringify(results));
+					break;
+					case "config":
+						response.writeHead(200,{"Content-Type": "application/json; charset=utf-8"});
+						response.end(JSON.stringify(config));
+					break;
+					case "about":
+						response.writeHead(200,{"Content-Type": "application/json; charset=utf-8"});
+						response.end(JSON.stringify({
+							name:packageinfo.name,
+							version:packageinfo.version
+
+						}));
+					break;
+					default:
+						response.writeHead(404,{"Content-Type": "application/json; charset=utf-8"});
+						response.end(JSON.stringify({"no_found":true}));
+					break;
+
+				}
 				
 			}
 			else{
@@ -37,16 +61,16 @@ var rest_api = function(){
 				//in all other cases pull the last file and write to web
 				var result= /(?:\/[^\/]+?)$/.exec(url);
 				
-				
 				verbose(url,result);
-
+				response.writeHead(200);
 				response.end(fs.readFileSync("./web"+result));
 			}
 		}
 		catch(ex){
 			console.log("Error Processing http request",ex);
-				response.writeHead(500);
-				response.end();
+			response.writeHead(500,{"Content-Type": "application/json; charset=utf-8"});
+				
+			response.end(JSON.stringify({"error":ex}));
 		}
 
 	}

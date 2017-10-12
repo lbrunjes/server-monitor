@@ -1,8 +1,8 @@
 /*
 Handlers for server monitor.
 Lee Brunjes 2017 lee.brunjes@gmail.com
-This make sthe requests taht return to the system
 
+This makes the requests that return to the system to determine up time
 
 */
 
